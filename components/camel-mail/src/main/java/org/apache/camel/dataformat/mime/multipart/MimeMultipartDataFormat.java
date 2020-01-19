@@ -21,15 +21,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
+import javax.activation.URLDataSource;
 import javax.mail.BodyPart;
 import javax.mail.Header;
 import javax.mail.MessagingException;
@@ -66,6 +65,8 @@ public class MimeMultipartDataFormat extends DefaultDataFormat {
     private static final String CONTENT_TRANSFER_ENCODING = "Content-Transfer-Encoding";
     private static final String DEFAULT_CONTENT_TYPE = "application/octet-stream";
     private static final String[] STANDARD_HEADERS = {"Message-ID", "MIME-Version", "Content-Type"};
+    private static final String CONTENT_TYPES = "Content-Types";
+    private static final String CONTENT_HEADER = "Content-Header";
     private String multipartSubType = "mixed";
     private boolean multipartWithoutAttachment;
     private boolean headersInline;
@@ -95,6 +96,7 @@ public class MimeMultipartDataFormat extends DefaultDataFormat {
     @Override
     public void marshal(Exchange exchange, Object graph, OutputStream stream)
             throws NoTypeConversionAvailableException, MessagingException, IOException {
+
         if (multipartWithoutAttachment || headersInline || exchange.getIn(AttachmentMessage.class).hasAttachments()) {
             ContentType contentType = getContentType(exchange);
             // remove the Content-Type header. This will be wrong afterwards...
@@ -106,6 +108,8 @@ public class MimeMultipartDataFormat extends DefaultDataFormat {
             BodyPart part = new MimeBodyPart();
             writeBodyPart(bodyContent, part, contentType);
             mp.addBodyPart(part);
+            HashMap<String, String> contentTypesMap = (HashMap<String, String>) exchange.getMessage().getHeader(CONTENT_TYPES);
+            String contentHeader = exchange.getMessage().getHeader(CONTENT_HEADER, String.class);
             if (exchange.getIn(AttachmentMessage.class).hasAttachments()) {
                 for (Map.Entry<String, Attachment> entry : exchange.getIn(AttachmentMessage.class).getAttachmentObjects().entrySet()) {
                     String attachmentFilename = entry.getKey();
@@ -115,6 +119,20 @@ public class MimeMultipartDataFormat extends DefaultDataFormat {
                     part.setFileName(MimeUtility.encodeText(attachmentFilename, "UTF-8", null));
                     String ct = attachment.getDataHandler().getContentType();
                     contentType = new ContentType(ct);
+                    //check if there is contentTypes in header contentTypes, for URLDatasource we not won't not to get the file twice.
+                    if (contentTypesMap != null) {
+                        ct = contentTypesMap.get(attachmentFilename);
+                    } else if (contentHeader != null) {
+                        URLDataSource urlDataSource = (URLDataSource) attachment.getDataHandler().getDataSource();
+                        URL url = urlDataSource.getURL();
+                        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                        connection.setRequestMethod("HEAD");
+                        connection.connect();
+                        ct = connection.getContentType();
+                    } else {
+                        ct = attachment.getDataHandler().getContentType();
+                    }
+                    //remove headers for ct
                     part.setHeader(CONTENT_TYPE, ct);
                     if (!contentType.match("text/*") && binaryContent) {
                         part.setHeader(CONTENT_TRANSFER_ENCODING, "binary");
