@@ -30,32 +30,17 @@ import org.junit.jupiter.api.Test;
 public class FromFtpUseListFalseTest extends FtpServerTestSupport {
 
     private String getFtpUrl() {
-        return "ftp://admin@localhost:" + getPort() + "/nolist/?password=admin"
-                + "&stepwise=false&useList=false&ignoreFileNotFoundOrPermissionError=true&fileName=report.txt&delete=true";
+        return "ftp://admin@localhost:{{ftp.server.port}}/nolist/?password=admin"
+               + "&stepwise=false&useList=false&ignoreFileNotFoundOrPermissionError=true&fileName=report.txt&delete=true";
     }
 
-    @Override
     @BeforeEach
-    public void setUp() throws Exception {
-        super.setUp();
-        prepareFtpServer();
-    }
-
-    @Test
-    public void testUseListFalse() throws Exception {
-        MockEndpoint mock = getMockEndpoint("mock:result");
-        mock.expectedBodiesReceived("Hello World from FTPServer");
-
-        // just allow to poll a few more times, but we should only get the file once
-        Thread.sleep(1000);
-
-        mock.assertIsSatisfied();
-    }
-    
     private void prepareFtpServer() throws Exception {
-        // prepares the FTP Server by creating a file on the server that we want to unit
+        // prepares the FTP Server by creating a file on the server that we want
+        // to unit
         // test that we can pool and store as a local file
-        Endpoint endpoint = context.getEndpoint("ftp://admin@localhost:" + getPort() + "/nolist/?password=admin&binary=false");
+        Endpoint endpoint
+                = context.getEndpoint("ftp://admin@localhost:{{ftp.server.port}}/nolist/?password=admin&binary=false");
         Exchange exchange = endpoint.createExchange();
         exchange.getIn().setBody("Hello World from FTPServer");
         exchange.getIn().setHeader(Exchange.FILE_NAME, "report.txt");
@@ -63,6 +48,18 @@ public class FromFtpUseListFalseTest extends FtpServerTestSupport {
         producer.start();
         producer.process(exchange);
         producer.stop();
+    }
+
+    @Test
+    public void testUseListFalse() throws Exception {
+        MockEndpoint mock = getMockEndpoint("mock:result");
+        mock.expectedBodiesReceived("Hello World from FTPServer");
+
+        // just allow to poll a few more times, but we should only get the file
+        // once
+        Thread.sleep(1000);
+
+        mock.assertIsSatisfied();
     }
 
     @Override

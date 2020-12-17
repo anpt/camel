@@ -33,9 +33,9 @@ public class FromFtpRemoteFileFilterTest extends FtpServerTestSupport {
 
     @BindToRegistry("myFilter")
     private MyFileFilter filter = new MyFileFilter<>();
-    
+
     private String getFtpUrl() {
-        return "ftp://admin@localhost:" + getPort() + "/filefilter?password=admin&filter=#myFilter";
+        return "ftp://admin@localhost:{{ftp.server.port}}/filefilter?password=admin&filter=#myFilter";
     }
 
     @Override
@@ -45,7 +45,8 @@ public class FromFtpRemoteFileFilterTest extends FtpServerTestSupport {
         prepareFtpServer();
     }
 
-    // Skip testing on AIX as it have an issue with this test with the file filter
+    // Skip testing on AIX as it have an issue with this test with the file
+    // filter
     @DisabledOnOs(OS.AIX)
     @Test
     public void testFtpFilter() throws Exception {

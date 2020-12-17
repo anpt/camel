@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test;
 public class FtpConsumerUsingFTPClientConfigTest extends FtpServerTestSupport {
 
     private String getFtpUrl() {
-        return "ftp://admin@localhost:" + getPort() + "/clientconfig?password=admin&ftpClientConfig=#myConfig";
+        return "ftp://admin@localhost:{{ftp.server.port}}/clientconfig?password=admin&ftpClientConfig=#myConfig";
     }
 
     @Override
@@ -56,7 +56,8 @@ public class FtpConsumerUsingFTPClientConfigTest extends FtpServerTestSupport {
     }
 
     private void prepareFtpServer() throws Exception {
-        // prepares the FTP Server by creating files on the server that we want to unit
+        // prepares the FTP Server by creating files on the server that we want
+        // to unit
         // test that we can pool and store as a local file
         sendFile(getFtpUrl(), "Hello World", "hello.txt");
     }

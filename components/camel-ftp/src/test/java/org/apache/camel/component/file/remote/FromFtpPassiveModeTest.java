@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 public class FromFtpPassiveModeTest extends FtpServerTestSupport {
 
     private String getFtpUrl() {
-        return "ftp://admin@localhost:" + getPort() + "/passive/?password=admin&passiveMode=true";
+        return "ftp://admin@localhost:{{ftp.server.port}}/passive/?password=admin&passiveMode=true";
     }
 
     @Override
@@ -43,7 +43,7 @@ public class FromFtpPassiveModeTest extends FtpServerTestSupport {
         mock.expectedBodiesReceived("Hello World");
         mock.assertIsSatisfied();
     }
-    
+
     private void prepareFtpServer() throws Exception {
         // prepares the FTP Server by creating a file on the server
         Endpoint endpoint = context.getEndpoint(getFtpUrl());

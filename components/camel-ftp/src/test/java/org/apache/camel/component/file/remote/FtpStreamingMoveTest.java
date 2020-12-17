@@ -31,7 +31,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class FtpStreamingMoveTest extends FtpServerTestSupport {
 
     private String getFtpUrl() {
-        return "ftp://admin@localhost:" + getPort() + "/mymove?password=admin&delay=1000&streamDownload=true&move=done";
+        return "ftp://admin@localhost:{{ftp.server.port}}"
+               + "/mymove?password=admin&delay=1000&streamDownload=true&move=done&stepwise=false";
     }
 
     @Override
@@ -43,10 +44,6 @@ public class FtpStreamingMoveTest extends FtpServerTestSupport {
 
     @Test
     public void testStreamDownloadMove() throws Exception {
-        if (!canTest()) {
-            return;
-        }
-
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedBodiesReceived("Hello World");
 
@@ -62,7 +59,7 @@ public class FtpStreamingMoveTest extends FtpServerTestSupport {
         // give time for consumer to rename file
         Thread.sleep(1000);
 
-        File file = new File(FTP_ROOT_DIR + "/mymove/done/hello.txt");
+        File file = new File(service.getFtpRootDir() + "/mymove/done/hello.txt");
         assertTrue(file.exists(), "File should have been renamed");
     }
 
@@ -71,9 +68,7 @@ public class FtpStreamingMoveTest extends FtpServerTestSupport {
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from(getFtpUrl())
-                    .routeId("foo").noAutoStartup()
-                    .to("mock:result");
+                from(getFtpUrl()).routeId("foo").noAutoStartup().to("mock:result");
             }
         };
     }

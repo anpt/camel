@@ -18,12 +18,11 @@ package org.apache.camel.component.mongodb;
 
 import com.mongodb.ReadPreference;
 import org.apache.camel.Endpoint;
-import org.apache.camel.ResolveEndpointFailedException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public class MongoDbReadPreferenceOptionTest extends AbstractMongoDbTest {
 
@@ -31,13 +30,12 @@ public class MongoDbReadPreferenceOptionTest extends AbstractMongoDbTest {
 
     @Test
     public void testInvalidReadPreferenceOptionValue() throws Exception {
-        try {
-            endpoint = createMongoDbEndpoint("mongodb:myDb?database={{mongodb.testDb}}&readPreference=foo");
-            endpoint.getReadPreferenceBean();
-            fail("Should have thrown exception");
-        } catch (IllegalArgumentException e) {
-            assertTrue(e.getMessage().startsWith("No match for read preference"));
-        }
+        endpoint = createMongoDbEndpoint("mongodb:myDb?database={{mongodb.testDb}}&readPreference=foo");
+
+        Exception ex = assertThrows(IllegalArgumentException.class,
+                () -> endpoint.getReadPreferenceBean());
+
+        assertTrue(ex.getMessage().startsWith("No match for read preference"));
     }
 
     @Test

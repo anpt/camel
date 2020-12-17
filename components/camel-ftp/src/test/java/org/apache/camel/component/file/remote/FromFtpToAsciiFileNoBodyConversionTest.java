@@ -25,13 +25,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * Unit testing a FTP ASCII transfer that Camel provides the needed conversion to String from
- * the input stream.
+ * Unit testing a FTP ASCII transfer that Camel provides the needed conversion to String from the input stream.
  */
 public class FromFtpToAsciiFileNoBodyConversionTest extends FtpServerTestSupport {
 
     private String getFtpUrl() {
-        return "ftp://admin@localhost:" + getPort() + "/tmp5/camel?password=admin&binary=false";
+        return "ftp://admin@localhost:{{ftp.server.port}}/tmp5/camel?password=admin&binary=false";
     }
 
     @Override
@@ -47,9 +46,10 @@ public class FromFtpToAsciiFileNoBodyConversionTest extends FtpServerTestSupport
         resultEndpoint.expectedMinimumMessageCount(1);
         resultEndpoint.expectedBodiesReceived("Hello ASCII from FTPServer");
     }
-    
+
     private void prepareFtpServer() throws Exception {
-        // prepares the FTP Server by creating a file on the server that we want to unit
+        // prepares the FTP Server by creating a file on the server that we want
+        // to unit
         // test that we can pool and store as a local file
         Endpoint endpoint = context.getEndpoint(getFtpUrl());
         Exchange exchange = endpoint.createExchange();

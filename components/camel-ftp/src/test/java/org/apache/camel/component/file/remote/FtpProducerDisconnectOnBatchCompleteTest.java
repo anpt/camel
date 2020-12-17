@@ -40,7 +40,7 @@ public class FtpProducerDisconnectOnBatchCompleteTest extends FtpServerTestSuppo
     }
 
     private String getFtpUrl() {
-        return "ftp://admin@localhost:" + getPort() + "/done?password=admin&disconnectOnBatchComplete=true";
+        return "ftp://admin@localhost:{{ftp.server.port}}/done?password=admin&disconnectOnBatchComplete=true";
     }
 
     @Test
@@ -52,7 +52,7 @@ public class FtpProducerDisconnectOnBatchCompleteTest extends FtpServerTestSuppo
         assertFalse(endpoint.getFtpClient().isConnected(), "The FTPClient should be already disconnected");
         assertTrue(endpoint.isDisconnectOnBatchComplete(), "The FtpEndpoint should be configured to disconnect");
     }
-    
+
     @Override
     public void sendFile(String url, Object body, String fileName) {
         template.send(url, new Processor() {

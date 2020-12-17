@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 public class FromFtpRemoteFileSortByExpressionTest extends FtpServerTestSupport {
 
     private String getFtpUrl() {
-        return "ftp://admin@localhost:" + getPort() + "/sortby?password=admin&delay=5000";
+        return "ftp://admin@localhost:{{ftp.server.port}}/sortby?password=admin&delay=5000";
     }
 
     @Override
@@ -70,8 +70,9 @@ public class FromFtpRemoteFileSortByExpressionTest extends FtpServerTestSupport 
     }
 
     private void prepareFtpServer() throws Exception {
-        // prepares the FTP Server by creating files on the server that we want to unit
-        // test that we can pool        
+        // prepares the FTP Server by creating files on the server that we want
+        // to unit
+        // test that we can pool
         sendFile(getFtpUrl(), "Hello Paris", "paris.dat");
         sendFile(getFtpUrl(), "Hello London", "london.txt");
         sendFile(getFtpUrl(), "Hello Copenhagen", "copenhagen.xml");

@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class FromFtpTwoSlashesIssueTest extends FtpServerTestSupport {
 
     protected String getFtpUrl() {
-        return "ftp://admin@localhost:" + getPort() + "//?password=admin";
+        return "ftp://admin@localhost:{{ftp.server.port}}//?password=admin";
     }
 
     @Override
@@ -43,7 +43,7 @@ public class FromFtpTwoSlashesIssueTest extends FtpServerTestSupport {
         super.setUp();
         prepareFtpServer();
     }
-    
+
     @Test
     public void testPollFileAndShouldBeDeleted() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
@@ -53,7 +53,8 @@ public class FromFtpTwoSlashesIssueTest extends FtpServerTestSupport {
     }
 
     private void prepareFtpServer() throws Exception {
-        // prepares the FTP Server by creating a file on the server that we want to unit
+        // prepares the FTP Server by creating a file on the server that we want
+        // to unit
         // test that we can pool and store as a local file
         Endpoint endpoint = context.getEndpoint(getFtpUrl());
         Exchange exchange = endpoint.createExchange();
@@ -65,7 +66,7 @@ public class FromFtpTwoSlashesIssueTest extends FtpServerTestSupport {
         producer.stop();
 
         // assert file is created
-        File file = new File(FTP_ROOT_DIR + "/hello.txt");
+        File file = new File(service.getFtpRootDir() + "/hello.txt");
         assertTrue(file.exists(), "The file should exists");
     }
 

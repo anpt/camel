@@ -17,14 +17,14 @@
 package org.apache.camel.component.aws2.translate;
 
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Endpoint;
 import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.annotations.Component;
 import org.apache.camel.support.DefaultComponent;
-import software.amazon.awssdk.services.translate.TranslateClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * For working with Amazon Translate SDK v2.
@@ -32,14 +32,10 @@ import software.amazon.awssdk.services.translate.TranslateClient;
 @Component("aws2-translate")
 public class Translate2Component extends DefaultComponent {
 
+    private static final Logger LOG = LoggerFactory.getLogger(Translate2Component.class);
+
     @Metadata
-    private String accessKey;
-    @Metadata
-    private String secretKey;
-    @Metadata
-    private String region;
-    @Metadata(label = "advanced")
-    private Translate2Configuration configuration;
+    private Translate2Configuration configuration = new Translate2Configuration();
 
     public Translate2Component() {
         this(null);
@@ -53,15 +49,13 @@ public class Translate2Component extends DefaultComponent {
 
     @Override
     protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
-        Translate2Configuration configuration = this.configuration != null ? this.configuration.copy() : new Translate2Configuration();
+        Translate2Configuration configuration
+                = this.configuration != null ? this.configuration.copy() : new Translate2Configuration();
 
         Translate2Endpoint endpoint = new Translate2Endpoint(uri, this, configuration);
-        endpoint.getConfiguration().setAccessKey(accessKey);
-        endpoint.getConfiguration().setSecretKey(secretKey);
-        endpoint.getConfiguration().setRegion(region);
         setProperties(endpoint, parameters);
-        checkAndSetRegistryClient(configuration);
-        if (configuration.getTranslateClient() == null && (configuration.getAccessKey() == null || configuration.getSecretKey() == null)) {
+        if (configuration.getTranslateClient() == null
+                && (configuration.getAccessKey() == null || configuration.getSecretKey() == null)) {
             throw new IllegalArgumentException("Amazon translate client or accessKey and secretKey must be specified");
         }
         return endpoint;
@@ -72,49 +66,9 @@ public class Translate2Component extends DefaultComponent {
     }
 
     /**
-     * The AWS Translate default configuration
+     * Component configuration
      */
     public void setConfiguration(Translate2Configuration configuration) {
         this.configuration = configuration;
-    }
-
-    public String getAccessKey() {
-        return accessKey;
-    }
-
-    /**
-     * Amazon AWS Access Key
-     */
-    public void setAccessKey(String accessKey) {
-        this.accessKey = accessKey;
-    }
-
-    public String getSecretKey() {
-        return secretKey;
-    }
-
-    /**
-     * Amazon AWS Secret Key
-     */
-    public void setSecretKey(String secretKey) {
-        this.secretKey = secretKey;
-    }
-
-    public String getRegion() {
-        return region;
-    }
-
-    /**
-     * The region in which Translate client needs to work
-     */
-    public void setRegion(String region) {
-        this.region = region;
-    }
-
-    private void checkAndSetRegistryClient(Translate2Configuration configuration) {
-        Set<TranslateClient> clients = getCamelContext().getRegistry().findByType(TranslateClient.class);
-        if (clients.size() == 1) {
-            configuration.setTranslateClient(clients.stream().findFirst().get());
-        }
     }
 }

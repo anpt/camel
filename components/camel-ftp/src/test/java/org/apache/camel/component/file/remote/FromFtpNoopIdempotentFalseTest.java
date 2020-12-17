@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class FromFtpNoopIdempotentFalseTest extends FtpServerTestSupport {
 
     private String getFtpUrl() {
-        return "ftp://admin@localhost:" + getPort() + "/noop?password=admin&binary=false&noop=true&idempotent=false";
+        return "ftp://admin@localhost:{{ftp.server.port}}/noop?password=admin&binary=false&noop=true&idempotent=false";
     }
 
     @Override
@@ -53,12 +53,13 @@ public class FromFtpNoopIdempotentFalseTest extends FtpServerTestSupport {
         mock.assertIsSatisfied();
 
         // assert the file is still there
-        File file = new File(FTP_ROOT_DIR + "/noop/hello.txt");
+        File file = new File(service.getFtpRootDir() + "/noop/hello.txt");
         assertTrue(file.exists(), "The file should exists");
     }
 
     private void prepareFtpServer() throws Exception {
-        // prepares the FTP Server by creating a file on the server that we want to unit
+        // prepares the FTP Server by creating a file on the server that we want
+        // to unit
         // test that we can pool and store as a local file
         Endpoint endpoint = context.getEndpoint(getFtpUrl());
         Exchange exchange = endpoint.createExchange();
@@ -69,7 +70,7 @@ public class FromFtpNoopIdempotentFalseTest extends FtpServerTestSupport {
         producer.process(exchange);
         producer.stop();
     }
-    
+
     @Override
     protected RouteBuilder createRouteBuilder() throws Exception {
         return new RouteBuilder() {

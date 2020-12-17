@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class FtpConsumerIPV6BodyAsStringTest extends FtpServerTestSupport {
 
     private String getFtpUrl() {
-        return "ftp://admin@[::1]:" + getPort() + "/tmp4/camel?password=admin&delay=5000";
+        return "ftp://admin@[::1]:{{ftp.server.port}}/tmp4/camel?password=admin&delay=5000";
     }
 
     @Override
@@ -53,7 +53,8 @@ public class FtpConsumerIPV6BodyAsStringTest extends FtpServerTestSupport {
     }
 
     private void prepareFtpServer() throws Exception {
-        // prepares the FTP Server by creating a file on the server that we want to unit
+        // prepares the FTP Server by creating a file on the server that we want
+        // to unit
         // test that we can pool
         Endpoint endpoint = context.getEndpoint(getFtpUrl());
         Exchange exchange = endpoint.createExchange();
@@ -64,7 +65,7 @@ public class FtpConsumerIPV6BodyAsStringTest extends FtpServerTestSupport {
         producer.process(exchange);
         producer.stop();
     }
-    
+
     @Override
     protected RouteBuilder createRouteBuilder() throws Exception {
         return new RouteBuilder() {

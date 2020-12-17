@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 public class FromFtpServerLanguageCodeTest extends FtpServerTestSupport {
 
     private String getFtpUrl() {
-        return "ftp://admin@localhost:" + getPort() + "/code/?password=admin&ftpClientConfig.serverLanguageCode=fr";
+        return "ftp://admin@localhost:{{ftp.server.port}}/code/?password=admin&ftpClientConfig.serverLanguageCode=fr";
     }
 
     @Override
@@ -41,10 +41,10 @@ public class FromFtpServerLanguageCodeTest extends FtpServerTestSupport {
     public void testLanguageCode() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedBodiesReceived("Hello World");
-        
+
         mock.assertIsSatisfied();
     }
-    
+
     private void prepareFtpServer() throws Exception {
         // prepares the FTP Server by creating a file on the server
         Endpoint endpoint = context.getEndpoint(getFtpUrl());

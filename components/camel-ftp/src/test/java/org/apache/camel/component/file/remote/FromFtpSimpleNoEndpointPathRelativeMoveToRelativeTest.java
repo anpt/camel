@@ -25,8 +25,8 @@ import org.junit.jupiter.api.Test;
 public class FromFtpSimpleNoEndpointPathRelativeMoveToRelativeTest extends FtpServerTestSupport {
 
     protected String getFtpUrl() {
-        return "ftp://admin@localhost:" + getPort() + "?password=admin&recursive=true&binary=false"
-                + "&move=.done&initialDelay=2500&delay=5000";
+        return "ftp://admin@localhost:{{ftp.server.port}}?password=admin&recursive=true&binary=false"
+               + "&move=.done&initialDelay=2500&delay=5000";
     }
 
     @Override
@@ -40,9 +40,9 @@ public class FromFtpSimpleNoEndpointPathRelativeMoveToRelativeTest extends FtpSe
     public void testPollFileAndShouldBeMoved() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedBodiesReceivedInAnyOrder("Hello", "Bye", "Goodday");
-        mock.expectedFileExists(FTP_ROOT_DIR + "/.done/hello.txt");
-        mock.expectedFileExists(FTP_ROOT_DIR + "/sub/.done/bye.txt");
-        mock.expectedFileExists(FTP_ROOT_DIR + "/sub/sub2/.done/goodday.txt");
+        mock.expectedFileExists(service.getFtpRootDir() + "/.done/hello.txt");
+        mock.expectedFileExists(service.getFtpRootDir() + "/sub/.done/bye.txt");
+        mock.expectedFileExists(service.getFtpRootDir() + "/sub/sub2/.done/goodday.txt");
 
         mock.assertIsSatisfied();
     }
@@ -52,7 +52,7 @@ public class FromFtpSimpleNoEndpointPathRelativeMoveToRelativeTest extends FtpSe
         template.sendBodyAndHeader(getFtpUrl(), "Bye", Exchange.FILE_NAME, "sub/bye.txt");
         template.sendBodyAndHeader(getFtpUrl(), "Goodday", Exchange.FILE_NAME, "sub/sub2/goodday.txt");
     }
-    
+
     @Override
     protected RouteBuilder createRouteBuilder() throws Exception {
         return new RouteBuilder() {

@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 public class FromFtpKeepLastModifiedTest extends FtpServerTestSupport {
 
     protected String getFtpUrl() {
-        return "ftp://admin@localhost:" + getPort() + "/keep?password=admin&binary=false&noop=true";
+        return "ftp://admin@localhost:{{ftp.server.port}}/keep?password=admin&binary=false&noop=true";
     }
 
     @Override
@@ -48,8 +48,7 @@ public class FromFtpKeepLastModifiedTest extends FtpServerTestSupport {
         context.addRoutes(new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from(getFtpUrl())
-                    .delay(3000).to("file://target/keep/out?keepLastModified=true", "mock:result");
+                from(getFtpUrl()).delay(3000).to("file://target/keep/out?keepLastModified=true", "mock:result");
             }
         });
         context.start();
@@ -72,8 +71,7 @@ public class FromFtpKeepLastModifiedTest extends FtpServerTestSupport {
         context.addRoutes(new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from(getFtpUrl())
-                    .delay(3000).to("file://target/keep/out?keepLastModified=false", "mock:result");
+                from(getFtpUrl()).delay(3000).to("file://target/keep/out?keepLastModified=false", "mock:result");
             }
         });
         context.start();
@@ -96,8 +94,7 @@ public class FromFtpKeepLastModifiedTest extends FtpServerTestSupport {
         context.addRoutes(new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                from(getFtpUrl())
-                    .delay(3000).to("file://target/keep/out", "mock:result");
+                from(getFtpUrl()).delay(3000).to("file://target/keep/out", "mock:result");
             }
         });
         context.start();

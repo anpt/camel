@@ -25,7 +25,6 @@ public final class TelegramMessageHelper {
     private TelegramMessageHelper() {
     }
 
-
     public static void populateExchange(Exchange exchange, Update update) {
         if (update.getMessage() != null) {
             exchange.getMessage().setBody(update.getMessage());
@@ -41,6 +40,8 @@ public final class TelegramMessageHelper {
             }
         } else if (update.getCallbackQuery() != null) {
             exchange.getMessage().setBody(update.getCallbackQuery());
+        } else if (update.getIncomingInlineQuery() != null) {
+            exchange.getMessage().setBody(update.getIncomingInlineQuery());
         }
 
     }

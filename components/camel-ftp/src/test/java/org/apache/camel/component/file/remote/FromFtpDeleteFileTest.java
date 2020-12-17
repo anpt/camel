@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class FromFtpDeleteFileTest extends FtpServerTestSupport {
 
     protected String getFtpUrl() {
-        return "ftp://admin@localhost:" + getPort() + "/deletefile?password=admin&binary=false&delete=true";
+        return "ftp://admin@localhost:{{ftp.server.port}}/deletefile?password=admin&binary=false&delete=true";
     }
 
     @Override
@@ -44,7 +44,7 @@ public class FromFtpDeleteFileTest extends FtpServerTestSupport {
         super.setUp();
         prepareFtpServer();
     }
-    
+
     @Test
     public void testPollFileAndShouldBeDeleted() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
@@ -56,12 +56,13 @@ public class FromFtpDeleteFileTest extends FtpServerTestSupport {
         Thread.sleep(500);
 
         // assert the file is deleted
-        File file = new File(FTP_ROOT_DIR + "/deletefile/hello.txt");
+        File file = new File(service.getFtpRootDir() + "/deletefile/hello.txt");
         assertFalse(file.exists(), "The file should have been deleted");
     }
 
     private void prepareFtpServer() throws Exception {
-        // prepares the FTP Server by creating a file on the server that we want to unit
+        // prepares the FTP Server by creating a file on the server that we want
+        // to unit
         // test that we can pool and store as a local file
         Endpoint endpoint = context.getEndpoint(getFtpUrl());
         Exchange exchange = endpoint.createExchange();
@@ -73,7 +74,7 @@ public class FromFtpDeleteFileTest extends FtpServerTestSupport {
         producer.stop();
 
         // assert file is created
-        File file = new File(FTP_ROOT_DIR + "/deletefile/hello.txt");
+        File file = new File(service.getFtpRootDir() + "/deletefile/hello.txt");
         assertTrue(file.exists(), "The file should exists");
     }
 

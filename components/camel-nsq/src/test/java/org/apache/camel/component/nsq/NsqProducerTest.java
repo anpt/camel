@@ -24,7 +24,9 @@ import com.github.brainlag.nsq.NSQConsumer;
 import com.github.brainlag.nsq.lookup.DefaultNSQLookup;
 import com.github.brainlag.nsq.lookup.NSQLookup;
 import org.apache.camel.builder.RouteBuilder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class NsqProducerTest extends NsqTestSupport {
 
@@ -38,7 +40,7 @@ public class NsqProducerTest extends NsqTestSupport {
 
         template.sendBody("direct:send", TEST_MESSAGE);
 
-        AtomicInteger counter = new AtomicInteger(0);
+        AtomicInteger counter = new AtomicInteger();
         NSQLookup lookup = new DefaultNSQLookup();
         lookup.addLookupAddress("localhost", 4161);
 
@@ -50,7 +52,7 @@ public class NsqProducerTest extends NsqTestSupport {
         });
         consumer.start();
 
-        lock.await(30, TimeUnit.SECONDS);
+        lock.await(60, TimeUnit.SECONDS);
 
         assertEquals(1, counter.get());
         consumer.shutdown();
@@ -65,7 +67,7 @@ public class NsqProducerTest extends NsqTestSupport {
             template.sendBody("direct:send", "test" + i);
         }
 
-        AtomicInteger counter = new AtomicInteger(0);
+        AtomicInteger counter = new AtomicInteger();
         NSQLookup lookup = new DefaultNSQLookup();
         lookup.addLookupAddress("localhost", 4161);
 

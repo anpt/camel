@@ -25,12 +25,16 @@ import org.apache.camel.support.DefaultComponent;
 import org.apache.camel.support.LRUCache;
 import org.apache.camel.support.LRUCacheFactory;
 import org.apache.camel.util.PropertiesHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The bean component is for invoking Java beans from Camel.
  */
 @org.apache.camel.spi.annotations.Component("bean")
 public class BeanComponent extends DefaultComponent {
+
+    private static final Logger LOG = LoggerFactory.getLogger(BeanComponent.class);
 
     // use an internal soft cache for BeanInfo as they are costly to introspect
     // for example the bean language using OGNL expression runs much faster reusing the BeanInfo from this cache
@@ -41,19 +45,19 @@ public class BeanComponent extends DefaultComponent {
     @Metadata(defaultValue = "true", description = "Use singleton option instead.")
     private Boolean cache;
     @Metadata(defaultValue = "Singleton", description = "Scope of bean."
-            + " When using singleton scope (default) the bean is created or looked up only once and reused for the lifetime of the endpoint."
-            + " The bean should be thread-safe in case concurrent threads is calling the bean at the same time."
-            + " When using request scope the bean is created or looked up once per request (exchange). This can be used if you want to store state on a bean"
-            + " while processing a request and you want to call the same bean instance multiple times while processing the request."
-            + " The bean does not have to be thread-safe as the instance is only called from the same request."
-            + " When using delegate scope, then the bean will be looked up or created per call. However in case of lookup then this is delegated "
-            + " to the bean registry such as Spring or CDI (if in use), which depends on their configuration can act as either singleton or prototype scope."
-            + " so when using prototype then this depends on the delegated registry.")
+                                                        + " When using singleton scope (default) the bean is created or looked up only once and reused for the lifetime of the endpoint."
+                                                        + " The bean should be thread-safe in case concurrent threads is calling the bean at the same time."
+                                                        + " When using request scope the bean is created or looked up once per request (exchange). This can be used if you want to store state on a bean"
+                                                        + " while processing a request and you want to call the same bean instance multiple times while processing the request."
+                                                        + " The bean does not have to be thread-safe as the instance is only called from the same request."
+                                                        + " When using delegate scope, then the bean will be looked up or created per call. However in case of lookup then this is delegated "
+                                                        + " to the bean registry such as Spring or CDI (if in use), which depends on their configuration can act as either singleton or prototype scope."
+                                                        + " so when using prototype then this depends on the delegated registry.")
     private BeanScope scope = BeanScope.Singleton;
 
     public BeanComponent() {
     }
-    
+
     // Implementation methods
     //-----------------------------------------------------------------------
     @Override
@@ -71,7 +75,7 @@ public class BeanComponent extends DefaultComponent {
         endpoint.setParameters(options);
         return endpoint;
     }
-    
+
     BeanInfo getBeanInfoFromCache(BeanInfoCacheKey key) {
         return beanInfoCache.get(key);
     }
@@ -82,9 +86,10 @@ public class BeanComponent extends DefaultComponent {
 
     @Override
     protected void doShutdown() throws Exception {
-        if (log.isDebugEnabled() && beanInfoCache instanceof LRUCache) {
+        if (LOG.isDebugEnabled() && beanInfoCache instanceof LRUCache) {
             LRUCache cache = (LRUCache) this.beanInfoCache;
-            log.debug("Clearing BeanInfo cache[size={}, hits={}, misses={}, evicted={}]", cache.size(), cache.getHits(), cache.getMisses(), cache.getEvicted());
+            LOG.debug("Clearing BeanInfo cache[size={}, hits={}, misses={}, evicted={}]", cache.size(), cache.getHits(),
+                    cache.getMisses(), cache.getEvicted());
         }
         beanInfoCache.clear();
     }

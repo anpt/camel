@@ -35,7 +35,7 @@ public class FromFtpThirdPoolOkTest extends FtpServerTestSupport {
     private String body = "Hello World this file will be deleted";
 
     private String getFtpUrl() {
-        return "ftp://admin@localhost:" + getPort() + "/thirdpool?password=admin&delete=true";
+        return "ftp://admin@localhost:{{ftp.server.port}}/thirdpool?password=admin&delete=true";
     }
 
     @Override
@@ -61,7 +61,7 @@ public class FromFtpThirdPoolOkTest extends FtpServerTestSupport {
         assertEquals(3, counter);
 
         // assert the file is deleted
-        File file = new File(FTP_ROOT_DIR + "/thirdpool/hello.txt");
+        File file = new File(service.getFtpRootDir() + "/thirdpool/hello.txt");
         assertFalse(file.exists(), "The file should have been deleted");
     }
 
@@ -71,16 +71,14 @@ public class FromFtpThirdPoolOkTest extends FtpServerTestSupport {
             public void configure() throws Exception {
                 // no redeliveries as we want the ftp consumer to try again
                 // use no delay for fast unit testing
-                onException(IllegalArgumentException.class)
-                        .logStackTrace(false)
-                        .to("mock:error");
+                onException(IllegalArgumentException.class).logStackTrace(false).to("mock:error");
 
                 from(getFtpUrl()).process(new Processor() {
                     public void process(Exchange exchange) throws Exception {
                         counter++;
                         if (counter < 3) {
                             // file should exists
-                            File file = new File(FTP_ROOT_DIR + "/thirdpool/hello.txt");
+                            File file = new File(service.getFtpRootDir() + "/thirdpool/hello.txt");
                             assertTrue(file.exists(), "The file should NOT have been deleted");
                             throw new IllegalArgumentException("Forced by unittest");
                         }

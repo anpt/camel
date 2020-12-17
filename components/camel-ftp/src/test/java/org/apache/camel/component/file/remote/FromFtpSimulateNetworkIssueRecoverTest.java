@@ -27,19 +27,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Simulate network issues by using a custom poll strategy to force exceptions
- * occurring during poll.
+ * Simulate network issues by using a custom poll strategy to force exceptions occurring during poll.
  */
 public class FromFtpSimulateNetworkIssueRecoverTest extends FtpServerTestSupport {
 
     private static int counter;
     private static int rollback;
-    
+
     @BindToRegistry("myPoll")
     private MyPollStrategy strategy = new MyPollStrategy();
-    
+
     private String getFtpUrl() {
-        return "ftp://admin@localhost:" + getPort() + "/recover?password=admin&pollStrategy=#myPoll";
+        return "ftp://admin@localhost:{{ftp.server.port}}/recover?password=admin&pollStrategy=#myPoll";
     }
 
     @Test

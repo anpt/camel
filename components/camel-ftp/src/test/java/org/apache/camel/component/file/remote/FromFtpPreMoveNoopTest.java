@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class FromFtpPreMoveNoopTest extends FtpServerTestSupport {
 
     protected String getFtpUrl() {
-        return "ftp://admin@localhost:" + getPort() + "/movefile?password=admin&preMove=work&noop=true";
+        return "ftp://admin@localhost:{{ftp.server.port}}/movefile?password=admin&preMove=work&noop=true";
     }
 
     @Override
@@ -55,12 +55,13 @@ public class FromFtpPreMoveNoopTest extends FtpServerTestSupport {
 
         // and file should be kept there
         Thread.sleep(1000);
-        File file = new File(FTP_ROOT_DIR + "/movefile/work/hello.txt");
+        File file = new File(service.getFtpRootDir() + "/movefile/work/hello.txt");
         assertTrue(file.exists(), "The file should exists");
     }
 
     private void prepareFtpServer() throws Exception {
-        // prepares the FTP Server by creating a file on the server that we want to unit
+        // prepares the FTP Server by creating a file on the server that we want
+        // to unit
         // test that we can pool and store as a local file
         Endpoint endpoint = context.getEndpoint(getFtpUrl());
         Exchange exchange = endpoint.createExchange();
@@ -71,7 +72,7 @@ public class FromFtpPreMoveNoopTest extends FtpServerTestSupport {
         producer.process(exchange);
         producer.stop();
     }
-    
+
     @Override
     protected RouteBuilder createRouteBuilder() throws Exception {
         return new RouteBuilder() {
@@ -79,7 +80,7 @@ public class FromFtpPreMoveNoopTest extends FtpServerTestSupport {
                 from(getFtpUrl()).process(new Processor() {
                     public void process(Exchange exchange) throws Exception {
                         // assert the file is pre moved
-                        File file = new File(FTP_ROOT_DIR + "/movefile/work/hello.txt");
+                        File file = new File(service.getFtpRootDir() + "/movefile/work/hello.txt");
                         assertTrue(file.exists(), "The file should have been moved");
                     }
                 }).to("mock:result");

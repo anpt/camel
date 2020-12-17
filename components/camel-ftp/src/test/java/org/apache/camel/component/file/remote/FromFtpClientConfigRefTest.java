@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test;
 public class FromFtpClientConfigRefTest extends FtpServerTestSupport {
 
     private String getFtpUrl() {
-        return "ftp://admin@localhost:" + getPort() + "/timeout/?password=admin&ftpClientConfig=#myConfig";
+        return "ftp://admin@localhost:{{ftp.server.port}}/timeout/?password=admin&ftpClientConfig=#myConfig";
     }
 
     @BindToRegistry("myConfig")
@@ -48,15 +48,15 @@ public class FromFtpClientConfigRefTest extends FtpServerTestSupport {
         super.setUp();
         prepareFtpServer();
     }
-    
+
     @Test
     public void testTimeout() throws Exception {
         MockEndpoint mock = getMockEndpoint("mock:result");
         mock.expectedBodiesReceived("Hello World");
-        
+
         mock.assertIsSatisfied();
     }
-    
+
     private void prepareFtpServer() throws Exception {
         // prepares the FTP Server by creating a file on the server
         Endpoint endpoint = context.getEndpoint(getFtpUrl());

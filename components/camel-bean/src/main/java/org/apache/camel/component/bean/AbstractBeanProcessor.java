@@ -18,19 +18,21 @@ package org.apache.camel.component.bean;
 
 import org.apache.camel.AsyncCallback;
 import org.apache.camel.BeanScope;
-import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.NoSuchBeanException;
 import org.apache.camel.Processor;
 import org.apache.camel.support.AsyncProcessorSupport;
 import org.apache.camel.support.service.ServiceHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * A {@link Processor} which converts the inbound exchange to a method
- * invocation on a POJO
+ * A {@link Processor} which converts the inbound exchange to a method invocation on a POJO
  */
 public abstract class AbstractBeanProcessor extends AsyncProcessorSupport {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractBeanProcessor.class);
 
     private final BeanHolder beanHolder;
     private transient Processor processor;
@@ -42,14 +44,6 @@ public abstract class AbstractBeanProcessor extends AsyncProcessorSupport {
 
     public AbstractBeanProcessor(Object pojo, BeanInfo beanInfo) {
         this(new ConstantBeanHolder(pojo, beanInfo));
-    }
-
-    public AbstractBeanProcessor(Object pojo, CamelContext camelContext, ParameterMappingStrategy parameterMappingStrategy) {
-        this(pojo, new BeanInfo(camelContext, pojo.getClass(), parameterMappingStrategy));
-    }
-
-    public AbstractBeanProcessor(Object pojo, CamelContext camelContext) {
-        this(pojo, camelContext, BeanInfo.createParameterMappingStrategy(camelContext));
     }
 
     public AbstractBeanProcessor(BeanHolder beanHolder) {
@@ -106,8 +100,8 @@ public abstract class AbstractBeanProcessor extends AsyncProcessorSupport {
                 }
             }
             if (target != null) {
-                if (log.isTraceEnabled()) {
-                    log.trace("Using a custom adapter as bean invocation: {}", target);
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace("Using a custom adapter as bean invocation: {}", target);
                 }
                 try {
                     target.process(exchange);
@@ -141,7 +135,8 @@ public abstract class AbstractBeanProcessor extends AsyncProcessorSupport {
         }
 
         if (invocation == null) {
-            exchange.setException(new IllegalStateException("No method invocation could be created, no matching method could be found on: " + bean));
+            exchange.setException(new IllegalStateException(
+                    "No method invocation could be created, no matching method could be found on: " + bean));
             callback.done(true);
             return true;
         }
@@ -189,8 +184,8 @@ public abstract class AbstractBeanProcessor extends AsyncProcessorSupport {
     }
 
     /**
-     * Sets whether to support getter style method name, so you can
-     * say the method is called 'name' but it will invoke the 'getName' method.
+     * Sets whether to support getter style method name, so you can say the method is called 'name' but it will invoke
+     * the 'getName' method.
      * <p/>
      * Is by default turned off.
      */
